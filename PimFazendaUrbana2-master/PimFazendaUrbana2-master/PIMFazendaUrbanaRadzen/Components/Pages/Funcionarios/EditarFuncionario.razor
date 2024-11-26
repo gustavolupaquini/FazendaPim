@@ -1,0 +1,264 @@
+﻿@page "/editar-funcionario/{FuncionarioId:int}"
+@using PIMFazendaUrbanaRadzen.Services
+@using PIMFazendaUrbanaAPI.DTOs
+@* @attribute [Authorize] *@
+@inject PIMFazendaUrbanaRadzen.Services.AuthService AuthService
+
+<PageTitle>Editar Funcionário</PageTitle>
+
+@if (accessAllowed == true && hasChecked == true)
+{
+    <RadzenCard Style="max-width: 800px; margin: 0 auto; padding: 20px;" class="rz-mt-2">
+        <RadzenText Text="Editar Funcionário" TextStyle="TextStyle.H3" TagName="TagName.H1" class="rz-mb-3" />
+
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">
+            Erro ao editar funcionário
+        </RadzenAlert>
+
+        <RadzenTemplateForm TItem="FuncionarioDTO" Data="@funcionario" Submit="@FormSubmit">
+            <RadzenStack>
+                <RadzenFieldset Text="Dados de Login">
+                    <RadzenStack Gap="0.4rem">
+
+                        @* <!-- editar nome de usuário removido -->
+
+                        <!-- Usuário -->
+                        <RadzenFormField Text="Usuário:" Variant="Variant.Outlined">
+                            <RadzenTextBox style="width: 100%" @bind-Value="@funcionario.Usuario" Name="Usuario" title="Usuário é obrigatório"
+                                           @onblur="VerificarUsuarioDisponivel" />
+                            <RadzenRequiredValidator Component="Usuario" Text="Usuário é obrigatório" />
+                            @if (!usuarioDisponivel)
+                            {
+                                <div style="color: red; font-size:small;">@mensagemErroUsuarioIndisponivel</div>
+                            }
+                        </RadzenFormField>
+                        *@
+
+                        <!-- Cargo -->
+                        <RadzenFormField Text="Cargo:" Variant="Variant.Outlined">
+                            <RadzenDropDown style="width: 100%"
+                                            @bind-Value="@funcionario.Cargo"
+                                            Name="Cargo"
+                                            Placeholder="Selecione o cargo"
+                                            Data="@cargos"
+                                            TValue="string"
+                                            title="Cargo é obrigatório, selecione um da lista" />
+                            <RadzenRequiredValidator Component="Cargo" Text="Cargo é obrigatório, selecione um da lista" />
+                        </RadzenFormField>
+
+                        @* <!-- editar senha removido -->
+
+                        <!-- Senha e Confirmar Senha -->
+                        <RadzenRow>
+                            @if (errorMessagesSenhaForte != null && errorMessagesSenhaForte.Any())
+                            {
+                                <div style="color: red;">
+                                    <ul style="margin: 0 0 0 0; padding-inline-start: 2rem;">
+                                        @foreach (var errorMessage in errorMessagesSenhaForte)
+                                        {
+                                            <li style="font-size:small;">@errorMessage</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                        </RadzenRow>
+                        
+                        <RadzenRow>
+                            <RadzenColumn>
+                                <RadzenFormField Text="Senha:" Variant="Variant.Outlined">
+                                    <RadzenTextBox type="@(exibirSenha ? "text" : "password")" style="width: 100%" @bind-Value="@funcionario.Senha" Name="Senha"
+                                                   title="A senha deve conter pelo menos 8 caracteres, uma letra minúscula e uma maiúscula, um número, e um caractere especial."
+                                                   @onblur="VerificarSenhas" />
+                                    <RadzenRequiredValidator Component="Senha" Text="Senha obrigatória" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn>
+                                <RadzenFormField Text="Confirme a Senha:" Variant="Variant.Outlined">
+                                    <RadzenTextBox type="@(exibirSenha ? "text" : "password")" style="width: 100%" @bind-Value="@confirmaSenha" Name="ConfirmaSenha"
+                                                   title="A senha deve conter pelo menos 8 caracteres, uma letra minúscula e uma maiúscula, um número, e um caractere especial."
+                                                   @onblur="VerificarSenhas" />
+                                    <RadzenRequiredValidator Component="ConfirmaSenha" Text="Confirmação de senha obrigatória" />
+                                    @if (!senhasCoincidem)
+                                    {
+                                        <div style="color: red; font-size:small;">@mensagemErroSenha</div>
+                                    }
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn>
+                                <!-- Botão para alternar a visibilidade das senhas -->
+                                <RadzenButton Icon="@(exibirSenha ? "visibility_off" : "visibility")"
+                                              Style="margin-top: 0.666rem;"
+                                              Size="Radzen.ButtonSize.Medium"
+                                              ButtonStyle="ButtonStyle.Light"
+                                              Variant="Radzen.Variant.Flat"
+                                              Click="@AlternarVisibilidadeSenha" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    *@
+
+                    </RadzenStack>
+                </RadzenFieldset>
+
+                <RadzenFieldset Text="Dados Pessoais">
+                    <RadzenStack Gap="0.4rem">
+                        <!-- Nome -->
+                        <RadzenFormField Text="Nome:" Variant="Variant.Outlined">
+                            <RadzenTextBox style="width: 100%" @bind-Value="@funcionario.Nome" Name="Nome" title="Nome é obrigatório e deve ter ao menos 3 caracteres" />
+                            <RadzenRequiredValidator Component="Nome" Text="Nome é obrigatório e deve ter ao menos 3 caracteres" />
+                        </RadzenFormField>
+
+                        <!-- CPF -->
+                        <RadzenFormField Text="CPF:" Variant="Variant.Outlined">
+                            <RadzenMask Mask="***.***.***-**" Pattern="[^0-9]" Placeholder="___.___.___-__" style="width: 100%" @bind-Value="@funcionario.CPF" Name="CPF" title="CPF é obrigatório e deve ter 14 caracteres" />
+                            <RadzenRequiredValidator Component="CPF" Text="CPF é obrigatório e deve ter 14 caracteres" />
+                        </RadzenFormField>
+
+                        <!-- Gênero -->
+                        <RadzenFormField Text="Gênero:" Variant="Variant.Outlined">
+                            <RadzenDropDown style="width: 100%" 
+                                            @bind-Value="@funcionario.Sexo" 
+                                            Name="Sexo" 
+                                            Placeholder="Selecione o gênero" 
+                                            Data="@generos" 
+                                            TValue="string" 
+                                            title="Gênero é obrigatório, selecione um da lista" />
+                            <RadzenRequiredValidator Component="Sexo" Text="Gênero é obrigatório, selecione um da lista" />
+                        </RadzenFormField>
+
+                        <!-- E-mail -->
+                        <RadzenFormField Text="E-mail:" Variant="Variant.Outlined">
+                            <RadzenTextBox style="width: 100%" @bind-Value="@funcionario.Email" Name="Email" title="E-mail é obrigatório e deve o formato nome@dominio.com ou similar" />
+                            <RadzenRequiredValidator Component="Email" Text="E-mail é obrigatório e deve o formato nome@dominio.com ou similar" />
+                        </RadzenFormField>
+
+                        <!-- DDD e Telefone -->
+                        <RadzenRow>
+                            <RadzenColumn>
+                                <RadzenFormField Text="DDD:" Variant="Variant.Outlined">
+                                    <RadzenMask Mask="**" Pattern="[^0-9]" Placeholder="__" style="width: 100%" @bind-Value="@funcionario.Telefone.DDD" Name="DDD" title="DDD é obrigatório e deve ter 2 dígitos" />
+                                    <RadzenRequiredValidator Component="DDD" Text="DDD é obrigatório e deve ter 2 dígitos" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn>
+                                <RadzenFormField Text="Telefone:" Variant="Variant.Outlined">
+                                    <RadzenMask Mask="*****-****" Pattern="[^0-9]" Placeholder="_____-____" style="width: 100%" @bind-Value="@funcionario.Telefone.Numero" Name="Telefone" title="Número de telefone é obrigatório" />
+                                    <RadzenRequiredValidator Component="Telefone" Text="Número de telefone é obrigatório" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+
+                    </RadzenStack>
+                </RadzenFieldset>
+
+                <RadzenFieldset Text="Endereço">
+                    <RadzenStack Gap="0.4rem">
+                        <!-- CEP -->
+                        <RadzenRow AlignItems="AlignItems.Center">
+
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" JustifyContent="JustifyContent.Start"  style="width: 100%;">
+                                <RadzenFormField Text="CEP:" Variant="Variant.Outlined">
+                                    <RadzenMask Mask="*****-***" Pattern="[^0-9]" Placeholder="_____-___" style="width: 100%" @bind-Value="@funcionario.Endereco.CEP" Name="CEP" title="CEP é obrigatório e deve ter 8 dígitos" />
+                                    <RadzenRequiredValidator Component="CEP" Text="CEP é obrigatório e deve ter 8 dígitos" />
+                                </RadzenFormField>
+                                <RadzenButton Style="padding-left: 6px; padding-right: 6px; padding-top: 0px; padding-bottom: 0px; width: 116px !important; height: 40px !important;"
+                                            class="rz-mt-2"
+                                                Text="Consultar CEP" Icon="add_location"
+                                                Size="Radzen.ButtonSize.Small"
+                                                ButtonStyle="ButtonStyle.Primary"
+                                                Variant="Radzen.Variant.Filled"
+                                                Shade="Radzen.Shade.Default"
+                                                Click="@BuscarEnderecoPorCEP" />
+                                <!-- Size="Radzen.ButtonSize.Small" -->
+
+                            </RadzenStack>
+                        </RadzenRow>
+
+                        <!-- Logradouro -->
+                        <RadzenFormField Text="Logradouro:" Variant="Variant.Outlined">
+                            <RadzenTextBox style="width: 100%" @bind-Value="@funcionario.Endereco.Logradouro" Name="Logradouro" title="Logradouro é obrigatório e deve ter ao menos 3 caracteres" />
+                            <RadzenRequiredValidator Component="Logradouro" Text="Logradouro é obrigatório e deve ter ao menos 3 caracteres" />
+                        </RadzenFormField>
+
+                        <!-- Número e Complemento em uma linha -->
+                        <RadzenRow>
+                            <RadzenColumn >
+                                <RadzenFormField Text="Número:" Variant="Variant.Outlined">
+                                    <RadzenNumeric Min="0" ShowUpDown="false" style="width: 100%" @bind-Value="@funcionario.Endereco.Numero" Name="Numero" title="Número é obrigatório e deve ter apenas caracteres numéricos" />
+                                    <RadzenRequiredValidator Component="Numero" Text="Número é obrigatório e deve ter apenas caracteres numéricos" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn >
+                                <RadzenFormField Text="Complemento:" Variant="Variant.Outlined">
+                                    <RadzenTextBox style="width: 100%" @bind-Value="@funcionario.Endereco.Complemento" Name="Complemento" title="Complemento é opcional" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+
+                        <!-- Bairro -->
+                        <RadzenFormField Text="Bairro:" Variant="Variant.Outlined">
+                            <RadzenTextBox style="width: 100%" @bind-Value="@funcionario.Endereco.Bairro" Name="Bairro" title="Bairro é obrigatório e deve ter ao menos 3 caracteres" />
+                            <RadzenRequiredValidator Component="Bairro" Text="Bairro é obrigatório e deve ter ao menos 3 caracteres" />
+                        </RadzenFormField>
+
+                        <!-- Cidade -->
+                        <RadzenFormField Text="Cidade:" Variant="Variant.Outlined">
+                            <RadzenTextBox style="width: 100%" @bind-Value="@funcionario.Endereco.Cidade" Name="Cidade" title="Cidade é obrigatória e deve ter ao menos 3 caracteres" />
+                            <RadzenRequiredValidator Component="Cidade" Text="Cidade é obrigatória e deve ter ao menos 3 caracteres" />
+                        </RadzenFormField>
+
+                        <!-- UF -->
+                        <RadzenFormField Variant="Variant.Outlined">
+                            <RadzenDropDown style="width: 100%"
+                                            @bind-Value="@funcionario.Endereco.UF"
+                                            Name="UF"
+                                            Placeholder="Selecione a UF"
+                                            Data="@estados"
+                                            TValue="string"
+                                            title="UF é obrigatória e deve ter 2 caracteres" />
+                            <RadzenRequiredValidator Component="UF" Text="UF é obrigatória e deve ter 2 caracteres" />
+                        </RadzenFormField>
+                    </RadzenStack>
+                </RadzenFieldset>
+
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem" JustifyContent="JustifyContent.Center" class="rz-mt-2" style="width: 100%;">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Confirmar"
+                                  Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Default" style="width: 50%;" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Text="Cancelar" Icon="cancel"
+                                  Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Light" style="width: 50%;"
+                                  Click="@CancelButtonClick" />
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenCard>
+}
+else if (accessAllowed == false && isLoggedIn == true && hasChecked == true)
+{
+    NavigationManager.NavigateTo("/acesso-negado");
+}
+
+@code {
+
+    private bool accessAllowed = false;
+    private bool isLoggedIn = false;
+    private bool hasChecked = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender == true)
+        {
+            isLoggedIn = await AuthService.IsAuthenticated();
+
+            if (isLoggedIn)
+            {
+                var isGerente = await AuthService.IsGerente();
+
+                if (isGerente == true)
+                {
+                    accessAllowed = true;
+                }
+            }
+            hasChecked = true;
+            StateHasChanged();
+        }
+    }
+}

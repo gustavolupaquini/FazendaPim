@@ -1,0 +1,64 @@
+﻿@page "/cadastrar-insumo"
+@using PIMFazendaUrbanaRadzen.Services
+@using PIMFazendaUrbanaAPI.DTOs
+@* @attribute [Authorize] *@
+
+<PageTitle>Cadastrar Insumos</PageTitle>
+
+<RadzenCard Style="max-width: 800px; margin: 0 auto; padding: 20px;" class="rz-mt-2">
+    <RadzenText Text="Cadastrar Insumos" TextStyle="TextStyle.H3" TagName="TagName.H1" class="rz-mb-3" />
+
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">
+        Erro ao cadastrar cliente
+    </RadzenAlert>
+
+    <RadzenTemplateForm TItem="InsumoDTO" Data="@insumo" Submit="@FormSubmit">
+        <RadzenStack>
+            <RadzenFieldset Text="Dados de Insumo">
+                <RadzenStack Gap="0.4rem">
+                    <!-- Nome -->
+                    <RadzenFormField Text="Nome:" Variant="Variant.Outlined" >
+                        <RadzenTextBox style="width: 100%" @bind-Value="@insumo.Nome" Name="Nome" title="Nome é obrigatório" />
+                        <RadzenRequiredValidator Component="Nome" Text="Nome é obrigatório" />
+                    </RadzenFormField>
+
+                    <!-- Categoria -->
+                    <RadzenFormField Variant="Variant.Outlined">
+                        <RadzenDropDown style="width: 100%"
+                                        @bind-Value="@insumo.Categoria"
+                                        Name="Categoria"
+                                        Placeholder="Selecione a Categoria"
+                                        Data="@categoria"
+                                        TValue="string"
+                                        title="Categoria é obrigatória" />
+                        <RadzenRequiredValidator Component="Categoria" Text="Categoria é obrigatória" />
+                    </RadzenFormField>
+
+                    <!-- Unidade -->
+                    <RadzenFormField Variant="Variant.Outlined">
+                        <RadzenDropDown style="width: 100%"
+                                        @bind-Value="@insumo.Unidqtd"
+                                        Name="Unidade"
+                                        Placeholder="Selecione a Unidade"
+                                        Data="@unidades"
+                                        TValue="string"
+                                        title="Unidade é obrigatória" />
+                        <RadzenRequiredValidator Component="Unidade" Text="Unidade é obrigatória" />
+                    </RadzenFormField>
+
+                </RadzenStack>
+            </RadzenFieldset>
+
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem" JustifyContent="JustifyContent.Center" class="rz-mt-2" style="width: 100%;">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Confirmar"
+                              Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Default" style="width: 50%;"
+                              />
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Text="Cancelar" Icon="cancel" 
+                              Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Light" style="width: 50%;" 
+                              Click="@CancelButtonClick" />
+            </RadzenStack>
+
+        </RadzenStack>
+    </RadzenTemplateForm>
+
+</RadzenCard>

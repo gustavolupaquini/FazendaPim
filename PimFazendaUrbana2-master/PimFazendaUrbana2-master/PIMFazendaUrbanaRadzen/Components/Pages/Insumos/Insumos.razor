@@ -1,0 +1,163 @@
+@page "/insumos"
+@using PIMFazendaUrbanaRadzen.Services
+@using PIMFazendaUrbanaAPI.DTOs
+@* @attribute [Authorize] *@
+
+<PageTitle>Insumos</PageTitle>
+
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center" Style="width: 100%; padding: 0; margin: 0;">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenText Text="Insumos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+
+                <!-- Botão Exportar-->
+                <RadzenSplitButton ButtonStyle="ButtonStyle.Secondary"
+                                   Icon="get_app"
+                                   Text="Exportar"
+                                   Variant="Radzen.Variant.Filled"
+                                   Shade="Radzen.Shade.Lighter"
+                                   IconColor="black"
+                                   Click="OnExportarClick">
+                    <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
+                    <RadzenSplitButtonItem Text="CSV" Value="csv" />
+                </RadzenSplitButton>
+
+                <!-- Botão Adicionar -->
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" Text="Cadastrar" Click="@AddButtonClick" Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Light" />
+
+                <!-- Botão Saída de Insumos -->
+                <RadzenButton ButtonStyle="ButtonStyle.Base" Icon="arrow_downward" Text="Saída Insumos" Click="@DecreaseButtonClick" Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Light" />
+
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenTextBox Placeholder="Procurar..." style="display: block; width: 100%" @oninput="@(args => OnSearch(args.Value.ToString()))" />
+
+    <RadzenRow Style="width: 100%; padding: 0; margin: 0;">
+        <RadzenColumn SizeMD="12" Style="width: 100%; padding: 0; margin: 0;">
+            <RadzenDataGrid @ref="grid0"
+                            Data="@insumos"
+                            TItem="InsumoDTO"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowPaging="true"
+                            AllowSorting="true"
+                            ShowPagingSummary="true"
+                            PageSizeOptions="@(new int[]{5, 10, 20, 30})"
+                            AllowColumnResize="true"
+                            PageSizeText="Itens por página"
+                            PageTitleFormat="Página {0}"
+                            PagingSummaryFormat="Página {0} de {1} ({2} itens)"
+                            PrevPageAriaLabel="Ir para a página anterior"
+                            PrevPageTitle="Página anterior"
+                            EmptyText="Sem itens para mostrar"
+                            PageAriaLabelFormat="Ir para a página {0}"
+                            NextPageAriaLabel="Ir para a próxima página"
+                            NextPageTitle="Próxima página"
+                            LastPageTitle="Última página"
+                            FirstPageTitle="Primeira página"
+                            EndsWithText="Termina com..."
+                            EnumFilterSelectText="Selecionar..."
+                            EqualsText="Igual a..."
+                            FilterText="Filtrar"
+                            FirstPageAriaLabel="Ir para a primeira página"
+                            GreaterThanText="Maior que..."
+                            GreaterThanOrEqualsText="Igual ou maior que..."
+                            IsNullText="Nulo"
+                            IsNotNullText="Não nulo"
+                            LastPageAriaLabel="Ir para a última página"
+                            LessThanText="Menor que..."
+                            LessThanOrEqualsText="Igual ou menor que..."
+                            OrOperatorText="Ou"
+                            AndOperatorText="E"
+                            ApplyFilterText="Aplicar"
+                            ClearFilterText="Limpar"
+                            ColumnsText="Colunas"
+                            ContainsText="Contém..."
+                            DoesNotContainText="Não contém..."
+                            StartsWithText="Começa com..."
+                            IsNotEmptyText="Não é vazio"
+                            IsEmptyText="É vazio"
+                            NotEqualsText="Não é igual a..."
+                            AllColumnsText="Todas"
+                            ColumnsShowingText="Exibir colunas"
+                            LogicalOperatorAriaLabel="Operador de filtro lógico"
+                            EnumNullFilterText="Sem valor"
+                            FilterToggleAriaLabel="Alternar"
+                            FilterOperatorAriaLabel="Filtrar operador"
+                            FilterValueAriaLabel="Filtrar valor"
+                            SecondFilterOperatorAriaLabel="Segundo operador de filtro"
+                            SecondFilterValueAriaLabel="Segundo valor de filtro"
+                            GroupPanelText="Arrastar cabeçalho de coluna"
+                            ExpandChildItemAriaLabel="Expandir item filho"
+                            ExpandGroupAriaLabel="Expandir grupo"
+                            RemoveGroupAriaLabel="Remover grupo"
+                            SelectVisibleColumnsAriaLabel="Selecionar colunas visíveis"
+                            class="data-grid-com-muitas-colunas">
+                <Columns>
+                    <!-- Coluna para Id -->
+                    <RadzenDataGridColumn TItem="InsumoDTO" Property="Id" Title="Id" Width="5%" MinWidth="35px">
+                    </RadzenDataGridColumn>
+
+                    <!-- Coluna para Nome -->
+                    <RadzenDataGridColumn TItem="InsumoDTO" Property="Nome" Title="Nome" Width="12%" MinWidth="150px">
+                        <Template Context="insumo">
+                            <span title="@insumo.Nome">@insumo.Nome</span> 
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                    <!-- Coluna para Categoria -->
+                    <RadzenDataGridColumn TItem="InsumoDTO" Property="Categoria" Title="Categoria" Width="17%">
+                        <Template Context="insumo">
+                            <span title="@insumo.Categoria">@insumo.Categoria</span> 
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                    <!-- Coluna para Quantidade -->
+                    <RadzenDataGridColumn TItem="InsumoDTO" Property="Quantidade" Title="Quantidade" Width="17%">
+                        <Template Context="insumo">
+                            <span title="@insumo.Qtd">@insumo.Qtd</span> 
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                    <!-- Coluna para Unidade -->
+                    <RadzenDataGridColumn TItem="InsumoDTO" Property="Unidade" Title="Unidade" Width="17%">
+                        <Template Context="insumo">
+                            <span title="@insumo.Unidqtd">@insumo.Unidqtd</span> 
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                    <!-- Coluna customizada para botões de ação -->
+                    <RadzenDataGridColumn TItem="InsumoDTO" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="5%" MinWidth="110px">
+                        <Template Context="insumo">
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                          Icon="arrow_downward" 
+                                          Size="ButtonSize.Medium"
+                                          Shade="Shade.Lighter"
+                                          Variant="Variant.Flat"
+                                          Click="@(() => BaixarInsumo(insumo))"
+                                          @onclick:stopPropagation="true"
+                                          Style="color: white; background-color: darkred" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                          Icon="delete"
+                                          Size="ButtonSize.Medium"
+                                          Shade="Shade.Lighter"
+                                          Variant="Variant.Flat"
+                                          Click="@(() => ConfirmarExclusao(insumo))"
+                                          @onclick:stopPropagation="true" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div style="color:red;">@errorMessage</div> <!-- Exibe erro em vermelho -->
+}

@@ -1,0 +1,50 @@
+﻿@page "/baixar-insumo/{InsumoId:int}"
+@using PIMFazendaUrbanaRadzen.Services
+@using PIMFazendaUrbanaAPI.DTOs
+@* @attribute [Authorize] *@
+
+<PageTitle>Baixar Insumo</PageTitle>
+
+<RadzenCard Style="max-width: 800px; margin: 0 auto; padding: 20px;" class="rz-mt-2">
+    <RadzenText Text="Baixar Insumo" TextStyle="TextStyle.H3" TagName="TagName.H1" class="rz-mb-3" />
+
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">
+        Erro ao baixar insumo
+    </RadzenAlert>
+
+    <RadzenTemplateForm TItem="InsumoDTO" Data="@insumo" Submit="@FormSubmit">
+        <RadzenStack>
+            <RadzenFieldset Text="Dados de Insumo">
+                <RadzenStack Gap="0.4rem">
+                    <!-- Id --> 
+                    <RadzenFormField Text="Id:" Variant="Variant.Outlined">
+                        <RadzenNumeric Min="0" ShowUpDown="false" style="width: 100%; background-color: rgba(161, 161, 161, 0.15);" @bind-Value="@insumo.Id" ReadOnly Name="Id" Background-color="rgba(161, 161, 161, 0.15)" />
+                        <RadzenRequiredValidator Component="Id" />
+                    </RadzenFormField>
+
+                    <!-- Nome -->
+                    <RadzenFormField Text="Nome:" Variant="Variant.Outlined">
+                        <RadzenTextBox style="width: 100%; background-color: rgba(161, 161, 161, 0.15);" @bind-Value="@insumo.Nome" ReadOnly Name="Nome" />
+                        <RadzenRequiredValidator Component="Nome" Text="Nome é obrigatório" />
+                    </RadzenFormField>
+
+                    <!-- Qtd -->
+                    <RadzenFormField Text="Quantidade:" Variant="Variant.Outlined">
+                        <RadzenNumeric Min="0" ShowUpDown="false" style="width: 100%" @bind-Value="@qtdSaida" Name="Quantidade" />
+                        <RadzenRequiredValidator Component="Id" />
+                    </RadzenFormField>
+
+                </RadzenStack>
+            </RadzenFieldset>
+
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem" JustifyContent="JustifyContent.Center" class="rz-mt-2" style="width: 100%;">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Confirmar"
+                              Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Default" style="width: 50%;" />
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Text="Cancelar" Icon="cancel"
+                              Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Light" style="width: 50%;"
+                              Click="@CancelButtonClick" />
+            </RadzenStack>
+
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenCard>

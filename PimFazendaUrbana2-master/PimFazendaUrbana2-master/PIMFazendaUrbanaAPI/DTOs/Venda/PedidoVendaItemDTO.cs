@@ -1,0 +1,17 @@
+﻿namespace PIMFazendaUrbanaAPI.DTOs
+{
+    public class PedidoVendaItemDTO
+    {
+        public int Id { get; set; }
+        public int Qtd { get; set; }
+        public string UnidQtd { get; set; }
+        public decimal Valor { get; set; }
+        public int IdPedidoVenda { get; set; }
+        public int IdProduto { get; set; }
+        public string NomeProduto { get; set; }
+        public DateTime Data { get; set; }
+        public string NomeCliente { get; set; }
+        public decimal ValorTotal => Qtd * Valor;
+    }
+}
+

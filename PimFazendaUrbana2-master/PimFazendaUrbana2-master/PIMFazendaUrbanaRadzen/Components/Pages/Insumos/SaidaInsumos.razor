@@ -1,0 +1,146 @@
+@page "/saida-insumos"
+@using PIMFazendaUrbanaRadzen.Services
+@using PIMFazendaUrbanaAPI.DTOs
+@* @attribute [Authorize] *@
+
+<PageTitle>Movimentação Saída de Insumos</PageTitle>
+
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center" Style="width: 100%; padding: 0; margin: 0;">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenText Text="Saída de Insumos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+
+                <!-- Botão Exportar-->
+                <RadzenSplitButton ButtonStyle="ButtonStyle.Secondary"
+                                   Icon="get_app"
+                                   Text="Exportar"
+                                   Variant="Radzen.Variant.Filled"
+                                   Shade="Radzen.Shade.Lighter"
+                                   IconColor="black"
+                                   Click="OnExportarClick">
+                    <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
+                    <RadzenSplitButtonItem Text="CSV" Value="csv" />
+                </RadzenSplitButton>
+
+                <!-- Botão Voltar -->
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" Text="Voltar" Click="@ReturnButtonClick" Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Light" />
+
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenTextBox Placeholder="Procurar..." style="display: block; width: 100%" @oninput="@(args => OnSearch(args.Value.ToString()))" />
+
+    <RadzenRow Style="width: 100%; padding: 0; margin: 0;">
+        <RadzenColumn SizeMD="12" Style="width: 100%; padding: 0; margin: 0;">
+            <RadzenDataGrid @ref="grid0"
+                            Data="@saidaInsumos"
+                            TItem="SaidaInsumoDTO"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowPaging="true"
+                            AllowSorting="true"
+                            ShowPagingSummary="true"
+                            PageSizeOptions="@(new int[]{5, 10, 20, 30})"
+                            AllowColumnResize="true"
+                            PageSizeText="Itens por página"
+                            PageTitleFormat="Página {0}"
+                            PagingSummaryFormat="Página {0} de {1} ({2} itens)"
+                            PrevPageAriaLabel="Ir para a página anterior"
+                            PrevPageTitle="Página anterior"
+                            EmptyText="Sem itens para mostrar"
+                            PageAriaLabelFormat="Ir para a página {0}"
+                            NextPageAriaLabel="Ir para a próxima página"
+                            NextPageTitle="Próxima página"
+                            LastPageTitle="Última página"
+                            FirstPageTitle="Primeira página"
+                            EndsWithText="Termina com..."
+                            EnumFilterSelectText="Selecionar..."
+                            EqualsText="Igual a..."
+                            FilterText="Filtrar"
+                            FirstPageAriaLabel="Ir para a primeira página"
+                            GreaterThanText="Maior que..."
+                            GreaterThanOrEqualsText="Igual ou maior que..."
+                            IsNullText="Nulo"
+                            IsNotNullText="Não nulo"
+                            LastPageAriaLabel="Ir para a última página"
+                            LessThanText="Menor que..."
+                            LessThanOrEqualsText="Igual ou menor que..."
+                            OrOperatorText="Ou"
+                            AndOperatorText="E"
+                            ApplyFilterText="Aplicar"
+                            ClearFilterText="Limpar"
+                            ColumnsText="Colunas"
+                            ContainsText="Contém..."
+                            DoesNotContainText="Não contém..."
+                            StartsWithText="Começa com..."
+                            IsNotEmptyText="Não é vazio"
+                            IsEmptyText="É vazio"
+                            NotEqualsText="Não é igual a..."
+                            AllColumnsText="Todas"
+                            ColumnsShowingText="Exibir colunas"
+                            LogicalOperatorAriaLabel="Operador de filtro lógico"
+                            EnumNullFilterText="Sem valor"
+                            FilterToggleAriaLabel="Alternar"
+                            FilterOperatorAriaLabel="Filtrar operador"
+                            FilterValueAriaLabel="Filtrar valor"
+                            SecondFilterOperatorAriaLabel="Segundo operador de filtro"
+                            SecondFilterValueAriaLabel="Segundo valor de filtro"
+                            GroupPanelText="Arrastar cabeçalho de coluna"
+                            ExpandChildItemAriaLabel="Expandir item filho"
+                            ExpandGroupAriaLabel="Expandir grupo"
+                            RemoveGroupAriaLabel="Remover grupo"
+                            SelectVisibleColumnsAriaLabel="Selecionar colunas visíveis"
+                            class="data-grid-com-muitas-colunas">
+                <Columns>
+                    <!-- Coluna para Id -->
+                    <RadzenDataGridColumn TItem="SaidaInsumoDTO" Property="Id" Title="Id" Width="5%" MinWidth="35px">
+                    </RadzenDataGridColumn>
+
+                    <!-- Coluna para Nome -->
+                    <RadzenDataGridColumn TItem="SaidaInsumoDTO" Property="Nome" Title="Nome" Width="12%" MinWidth="150px">
+                        <Template Context="saidaInsumo">
+                            <span title="@saidaInsumo.NomeInsumo">@saidaInsumo.NomeInsumo</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                    <!-- Coluna para Categoria -->
+                    <RadzenDataGridColumn TItem="SaidaInsumoDTO" Property="Categoria" Title="Categoria" Width="17%">
+                        <Template Context="saidaInsumo">
+                            <span title="@saidaInsumo.CategoriaInsumo">@saidaInsumo.CategoriaInsumo</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                    <!-- Coluna para Quantidade -->
+                    <RadzenDataGridColumn TItem="SaidaInsumoDTO" Property="Quantidade" Title="Quantidade" Width="17%">
+                        <Template Context="saidaInsumo">
+                            <span title="@saidaInsumo.Qtd">@saidaInsumo.Qtd</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                    <!-- Coluna para Unidade -->
+                    <RadzenDataGridColumn TItem="SaidaInsumoDTO" Property="Unidade" Title="Unidade" Width="17%">
+                        <Template Context="saidaInsumo">
+                            <span title="@saidaInsumo.Unidqtd">@saidaInsumo.Unidqtd</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                    <!-- Coluna para Data -->
+                    <RadzenDataGridColumn TItem="SaidaInsumoDTO" Property="Data" Title="Data" Width="17%">
+                        <Template Context="saidaInsumo">
+                            <span title="@saidaInsumo.Data">@saidaInsumo.Data</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div style="color:red;">@errorMessage</div> <!-- Exibe erro em vermelho -->
+}
